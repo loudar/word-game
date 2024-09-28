@@ -45,7 +45,7 @@ export class UniqueTemplates {
             .classes("content", "flex-v")
             .children(
                 create("div")
-                    .classes("flex", "space-between")
+                    .classes("flex", "wrap", "space-between")
                     .children(
                         GenericTemplates.select("Buchstabe", Array.from({length: 26}, (_, i) => {
                             return {
@@ -66,7 +66,7 @@ export class UniqueTemplates {
                     .text("Erratene Wörter")
                     .build(),
                 GenericTemplates.wordList(guessedWords, "guessed"),
-                GenericTemplates.text(notYetGuessedCount),
+                GenericTemplates.text(notYetGuessedCount, ["text-small"]),
                 GenericTemplates.error(error),
                 GenericTemplates.fullWidthTextInput(null, input, newInput => {
                     const found = WordApi.processGuessedWords(newInput, guessedWords, knownWords);

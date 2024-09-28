@@ -121,3 +121,11 @@ label {
 .space-between {
     justify-content: space-between;
 }
+
+.text-small {
+    font-size: 0.8em;
+}
+
+.wrap {
+    flex-wrap: wrap;
+}
