@@ -82,8 +82,10 @@ export class GenericTemplates {
 
     static select(label, options, value, onchange) {
         return create("div")
-            .classes("flex", "align-center")
+            .classes("flex", "align-content")
             .children(
+                create("label")
+                    .text(label),
                 create("span")
                     .classes("select")
                     .children(

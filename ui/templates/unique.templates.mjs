@@ -38,12 +38,14 @@ export class UniqueTemplates {
         sttApiKey.subscribe(apiKey => {
             window.sttApi.setApiKey(apiKey);
         });
+        const preventRecording = store().get("preventRecording");
+        const recordingIcon = computedSignal(preventRecording, preventRecording => preventRecording ? "mic_off" : "mic");
 
         return create("div")
             .classes("content", "flex-v")
             .children(
                 create("div")
-                    .classes("flex")
+                    .classes("flex", "space-between")
                     .children(
                         GenericTemplates.select("Buchstabe", Array.from({length: 26}, (_, i) => {
                             return {
@@ -53,9 +55,12 @@ export class UniqueTemplates {
                         }), selectedLetter, newLetter => {
                             selectedLetter.value = newLetter.toLowerCase();
                         }),
-                        GenericTemplates.input("password", "OpenAI-Api-Key", input, newInput => {
+                        GenericTemplates.input("password", "OpenAI-Api-Key", sttApiKey, newInput => {
                             sttApiKey.value = newInput;
                         }),
+                        GenericTemplates.iconButton(recordingIcon, () => {
+                            preventRecording.value = !preventRecording.value;
+                        }, ["positive"]),
                     ).build(),
                 create("h2")
                     .text("Erratene Wörter")

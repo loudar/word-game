@@ -42,6 +42,7 @@ input, select, option, button {
     border: none;
     color: var(--fg);
     border-radius: var(--br);
+    font-size: 1rem;
 }
 
 button {
@@ -111,4 +112,12 @@ button:hover {
 
 .align-content {
     align-items: center;
+}
+
+label {
+    font-size: 0.8em;
+}
+
+.space-between {
+    justify-content: space-between;
 }

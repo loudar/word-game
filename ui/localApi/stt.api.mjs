@@ -2,11 +2,17 @@ export class SttApi {
     constructor(apiEndpoint) {
         this.apiEndpoint = apiEndpoint;
         this.apiKey = null;
+        this.preventRecording = true;
     }
 
     setApiKey(apiKey) {
         console.log(`Setting API key to ${apiKey.substring(0, 3)}...`);
         this.apiKey = apiKey;
+        localStorage.setItem("sttApiKey", apiKey);
+    }
+
+    toggleRecording() {
+        this.preventRecording = !this.preventRecording;
     }
 
     async transcribeAudio(voiceData) {
@@ -60,7 +66,7 @@ export class SttApi {
             const startTreshhold = .5;
 
             if (lastAmplitude > startTreshhold) {
-                if (!recording && maxAmplitude > hadDataThreshold) {
+                if (!recording && maxAmplitude > hadDataThreshold && !this.preventRecording) {
                     recording = true;
                     mediaRecorder.start();
                     console.log("Recording started...");
@@ -95,5 +101,9 @@ export class SttApi {
 
         // Check audio levels at a regular interval
         setInterval(checkAudioLevels, 100); // Check audio level every 100ms
+    }
+
+    setPreventRecording(preventRecording) {
+        this.preventRecording = preventRecording;
     }
 }
