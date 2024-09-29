@@ -1,4 +1,4 @@
-import {computedSignal, create, signalMap} from "https://fjs.targoninc.com/f.mjs";
+import {computedSignal, create, signal, signalMap} from "https://fjs.targoninc.com/f.mjs";
 import {Time} from "../time.mjs";
 import {WordApi} from "../localApi/word.api.mjs";
 
@@ -152,5 +152,25 @@ export class GenericTemplates {
                     })
                     .build()
             ).build();
+    }
+
+    static micButton(icon, onclick = () => {}, classes = [], title = "", amplitude = signal(0)) {
+        return create("button")
+            .classes("icon-button", ...classes)
+            .title(title)
+            .onclick(onclick)
+            .children(
+                GenericTemplates.verticalGauge(amplitude),
+                GenericTemplates.icon(icon),
+            ).build();
+    }
+
+    static verticalGauge(amplitude) {
+        const height = computedSignal(amplitude, amplitude => (amplitude * 100) + "%");
+
+        return create("div")
+            .classes("vertical-gauge")
+            .styles("height", height)
+            .build();
     }
 }

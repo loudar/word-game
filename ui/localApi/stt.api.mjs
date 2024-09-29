@@ -78,6 +78,7 @@ export class SttApi {
             const n = 1000;
             const averageOfLastN = dataArray.slice(dataArray.length - n).reduce((sum, value) => sum + (Math.abs(value - 128)), 0) / n;
             const lastAmplitude = Math.abs(dataArray[dataArray.length - 1] - 128);
+            store().setSignalValue("micAmp", lastAmplitude / 128);
 
             const hadDataThreshold = 5; // Define your threshold level here
             const startTreshhold = .2;

@@ -8,6 +8,7 @@ store().set("selectedLanguage", signal(languages[0].value));
 store().set("guessedWords", signal([]));
 store().set("knownWords", signal([]));
 store().set("sttApiKey", signal(null));
+store().set("micAmp", signal(0));
 store().set("preventRecording", signal(true));
 store().get("preventRecording").subscribe(preventRecording => {
     sttApi.setPreventRecording(preventRecording);

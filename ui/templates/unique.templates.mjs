@@ -60,6 +60,7 @@ export class UniqueTemplates {
         const recordingIcon = computedSignal(preventRecording, preventRecording => preventRecording ? "mic_off" : "mic");
         const uploading = signal(false);
         const uploadIcon = computedSignal(uploading, uploading => uploading ? "progress_activity" : "upload");
+        const micAmp = store().get("micAmp");
 
         return create("div")
             .classes("content", "flex-v")
@@ -113,9 +114,9 @@ export class UniqueTemplates {
                         GenericTemplates.input("password", Local.apiKey(), sttApiKey, newInput => {
                             sttApiKey.value = newInput;
                         }),
-                        GenericTemplates.iconButton(recordingIcon, () => {
+                        GenericTemplates.micButton(recordingIcon, () => {
                             preventRecording.value = !preventRecording.value;
-                        }, ["positive"]),
+                        }, ["positive"], "Toggle microphone", micAmp),
                     ).build(),
                 create("h2")
                     .text(Local.listTitle())

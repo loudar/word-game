@@ -142,3 +142,23 @@ label {
 .wrap {
     flex-wrap: wrap;
 }
+
+.icon-button {
+    position: relative;
+}
+
+.icon-button .material-symbols-outlined {
+    z-index: 1;
+}
+
+.vertical-gauge {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: var(--fg);
+    opacity: 0.5;
+    border-radius: var(--br);
+    z-index: 0;
+    pointer-events: none;
+}
