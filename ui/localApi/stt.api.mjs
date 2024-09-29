@@ -1,3 +1,5 @@
+import {store} from "https://fjs.targoninc.com/f.mjs";
+
 export class SttApi {
     constructor(apiEndpoint) {
         this.apiEndpoint = apiEndpoint;
@@ -62,18 +64,21 @@ export class SttApi {
                     maxAmplitude = amplitude;
                 }
             }
+            const n = 1000;
+            const averageOfLastN = dataArray.slice(dataArray.length - n).reduce((sum, value) => sum + (Math.abs(value - 128)), 0) / n;
             const lastAmplitude = Math.abs(dataArray[dataArray.length - 1] - 128);
 
             const hadDataThreshold = 5; // Define your threshold level here
-            const startTreshhold = .5;
+            const startTreshhold = .2;
+            const endTreshhold = 1;
 
             if (lastAmplitude > startTreshhold) {
-                if (!recording && maxAmplitude > hadDataThreshold && !this.preventRecording) {
+                if (this.apiKey && !recording && maxAmplitude > hadDataThreshold && !this.preventRecording) {
                     recording = true;
                     mediaRecorder.start();
                     console.log("Recording started...");
                 }
-            } else if (lastAmplitude < startTreshhold) {
+            } else if (averageOfLastN < endTreshhold) {
                 if (recording) {
                     mediaRecorder.stop();
                     console.log("Recording stopped...");
@@ -94,7 +99,9 @@ export class SttApi {
             if (audioBlob.size > 0) {
                 console.log('Audio blob size:', audioBlob.size);
                 if (this.apiKey) {
-                    await this.transcribeAudio(audioBlob);
+                    const transcription = await this.transcribeAudio(audioBlob);
+                    const input = store().get("input");
+                    input.value = transcription.replaceAll(/[^\w\s]/g, " ").replaceAll(/\s+/g, " ").trim().toLowerCase();
                 }
             } else {
                 console.warn('Audio blob is empty');

@@ -10,6 +10,20 @@ export const languages = [
 
 export class UniqueTemplates {
     static page() {
+        const input = store().get("input");
+        input.subscribe(newInput => {
+            if (!newInput || newInput.trim().length === 0) {
+                return;
+            }
+
+            const found = WordApi.processGuessedWords(newInput, guessedWords, knownWords);
+            if (!found) {
+                error.value = Local.noValidWordInText(newInput);
+            } else {
+                error.value = null;
+            }
+            input.value = "";
+        })
         const selectedLetter = store().get("selectedLetter");
         const selectedLanguage = store().get("selectedLanguage");
         const guessedWords = store().get("guessedWords");
@@ -37,7 +51,6 @@ export class UniqueTemplates {
         knownWords.subscribe(getNotYetGuessedWords);
         getNotYetGuessedWords();
         const notYetGuessedCount = computedSignal(notYetGuessedWords, notYetGuessedWords => Local.stats(guessedWords.value.length, notYetGuessedWords.length));
-        const input = signal("");
         const error = signal(null);
         const sttApiKey = store().get("sttApiKey");
         sttApiKey.subscribe(apiKey => {
@@ -49,9 +62,36 @@ export class UniqueTemplates {
         return create("div")
             .classes("content", "flex-v")
             .children(
-                GenericTemplates.select(Local.language(), languages, selectedLanguage, newLanguage => {
-                    selectedLanguage.value = newLanguage;
-                }),
+                create("div")
+                    .classes("flex", "wrap", "space-between")
+                    .children(
+                        GenericTemplates.select(Local.language(), languages, selectedLanguage, newLanguage => {
+                            selectedLanguage.value = newLanguage;
+                        }),
+                        create("div")
+                            .classes("flex", "align-content")
+                            .children(
+                                GenericTemplates.iconButton("download", () => {
+                                    const link = document.createElement('a');
+                                    link.href = URL.createObjectURL(new Blob([JSON.stringify(guessedWords.value, null, 4)], {type: 'application/json'}));
+                                    link.download = `${Local.listTitle()}_${selectedLanguage.value}_${selectedLetter.value}.json`;
+                                    link.click();
+                                }, ["positive"]),
+                                GenericTemplates.iconButton("upload", () => {
+                                    const input = document.createElement('input');
+                                    input.type = 'file';
+                                    input.onchange = e => {
+                                        const file = e.target.files[0];
+                                        const reader = new FileReader();
+                                        reader.onload = e => {
+                                            guessedWords.value = JSON.parse(e.target.result);
+                                        };
+                                        reader.readAsText(file);
+                                    };
+                                    input.click();
+                                }, ["positive"]),
+                            ).build()
+                    ).build(),
                 create("div")
                     .classes("flex", "wrap", "space-between")
                     .children(
@@ -73,17 +113,11 @@ export class UniqueTemplates {
                 create("h2")
                     .text(Local.listTitle())
                     .build(),
-                GenericTemplates.wordList(guessedWords, "guessed"),
                 GenericTemplates.text(notYetGuessedCount, ["text-small"]),
+                GenericTemplates.wordList(guessedWords, "guessed"),
                 GenericTemplates.error(error),
                 GenericTemplates.fullWidthTextInput(null, input, newInput => {
-                    const found = WordApi.processGuessedWords(newInput, guessedWords, knownWords);
-                    if (!found) {
-                        error.value = Local.noValidWordInText(newInput);
-                    } else {
-                        error.value = null;
-                    }
-                    input.value = "";
+                    input.value = newInput;
                 }),
             ).build();
     }
