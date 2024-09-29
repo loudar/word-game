@@ -3,7 +3,10 @@ import {languages, UniqueTemplates} from "./templates/unique.templates.mjs";
 import {SttApi} from "./localApi/stt.api.mjs";
 
 store().set("input", signal(""));
-store().set("selectedLetter", signal("a"));
+store().set("selectedLetter", signal(localStorage.getItem("selectedLetter") ?? "a"));
+store().get("selectedLetter").subscribe(letter => {
+    localStorage.setItem("selectedLetter", letter);
+});
 store().set("selectedLanguage", signal(languages[0].value));
 store().set("guessedWords", signal([]));
 store().set("knownWords", signal([]));
