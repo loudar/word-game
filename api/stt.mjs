@@ -13,6 +13,7 @@ export function initializeStt(app) {
             if (!apiKey) {
                 return res.status(400).send("Missing OPENAI_API_KEY header");
             }
+            const language = req.headers['language'] ?? "de";
 
             if (!req.file) {
                 return res.status(400).send("No file uploaded");
@@ -23,7 +24,7 @@ export function initializeStt(app) {
             const filePath = path.join(tempDir, file.filename + ".webm");
 
             fs.writeFileSync(filePath, fs.readFileSync(file.path));
-            let text = await OpenAiTranscriptionProvider.transcribe(filePath, apiKey);
+            let text = await OpenAiTranscriptionProvider.transcribe(filePath, language, apiKey);
 
             return res.send(text);
         } catch (err) {

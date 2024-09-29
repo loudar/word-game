@@ -3,6 +3,7 @@ export class SttApi {
         this.apiEndpoint = apiEndpoint;
         this.apiKey = null;
         this.preventRecording = true;
+        this.language = "de";
     }
 
     setApiKey(apiKey) {
@@ -22,7 +23,8 @@ export class SttApi {
             const response = await fetch(this.apiEndpoint, {
                 method: 'POST',
                 headers: {
-                    'OPENAI_API_KEY': this.apiKey
+                    'OPENAI_API_KEY': this.apiKey,
+                    'language': this.language
                 },
                 body: formData
             });
@@ -105,5 +107,9 @@ export class SttApi {
 
     setPreventRecording(preventRecording) {
         this.preventRecording = preventRecording;
+    }
+
+    setLanguage(code) {
+        this.language = code;
     }
 }

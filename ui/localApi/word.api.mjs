@@ -1,11 +1,11 @@
 export class WordApi {
-    static async getWordsForLetter(letter) {
-        const words = await WordApi.loadWords();
+    static async getWordsForLetter(letter, language) {
+        const words = await WordApi.loadWords(language);
         return words.filter(word => word.toLowerCase().startsWith(letter));
     }
 
-    static async loadWords() {
-        return await WordApi.loadFile("wordlist-german.txt");
+    static async loadWords(language) {
+        return await WordApi.loadFile(`wordlists/${language}.txt`);
     }
 
     static async loadFile(fileName) {
