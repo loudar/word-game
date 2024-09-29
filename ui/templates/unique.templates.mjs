@@ -125,7 +125,10 @@ export class UniqueTemplates {
                 GenericTemplates.wordList(guessedWords, "guessed"),
                 GenericTemplates.error(error),
                 GenericTemplates.fullWidthTextInput(null, input, newInput => {
-                    input.value = newInput;
+                    input.value = newInput.replaceAll(/[^\w\säöüß]/gi, " ")
+                        .replaceAll(/\s+/g, " ")
+                        .trim()
+                        .toLowerCase();
                     setTimeout(() => {
                         input.value = "";
                     }, 0);
