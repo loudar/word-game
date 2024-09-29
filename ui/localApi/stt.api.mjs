@@ -9,7 +9,9 @@ export class SttApi {
     }
 
     setApiKey(apiKey) {
-        console.log(`Setting API key to ${apiKey.substring(0, 3)}...`);
+        if (apiKey && apiKey.length > 0) {
+           console.log(`Setting API key to ${apiKey.substring(0, 3)}...`);
+        }
         this.apiKey = apiKey;
         localStorage.setItem("sttApiKey", apiKey);
     }
