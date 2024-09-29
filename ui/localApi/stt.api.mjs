@@ -47,9 +47,18 @@ export class SttApi {
         const audioContext = new AudioContext();
         const source = audioContext.createMediaStreamSource(stream);
         const analyser = audioContext.createAnalyser();
-        const mediaRecorder = new MediaRecorder(stream, {
-            mimeType: 'audio/wav'
-        });
+        let mediaRecorder, mimeType;
+        try {
+             mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'audio/wav'
+            });
+             mimeType = 'audio/wav';
+        } catch (error) {
+            mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'audio/webm'
+            });
+            mimeType = 'audio/webm';
+        }
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
         let audioBuffers = [];
@@ -95,7 +104,7 @@ export class SttApi {
         };
 
         mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(audioBuffers, { type: 'audio/wav' });
+            const audioBlob = new Blob(audioBuffers, { type: mimeType });
             audioBuffers = []; // Clear buffer
 
             if (audioBlob.size > 0) {
