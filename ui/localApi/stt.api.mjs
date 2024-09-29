@@ -46,7 +46,7 @@ export class SttApi {
         const source = audioContext.createMediaStreamSource(stream);
         const analyser = audioContext.createAnalyser();
         const mediaRecorder = new MediaRecorder(stream, {
-            mimeType: 'audio/webm; codecs=opus'
+            mimeType: 'audio/wav'
         });
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
@@ -93,7 +93,7 @@ export class SttApi {
         };
 
         mediaRecorder.onstop = async () => {
-            const audioBlob = new Blob(audioBuffers, { type: 'audio/webm' });
+            const audioBlob = new Blob(audioBuffers, { type: 'audio/wav' });
             audioBuffers = []; // Clear buffer
 
             if (audioBlob.size > 0) {
@@ -101,7 +101,21 @@ export class SttApi {
                 if (this.apiKey) {
                     const transcription = await this.transcribeAudio(audioBlob);
                     const input = store().get("input");
-                    input.value = transcription.replaceAll(/[^\w\s]/g, " ").replaceAll(/\s+/g, " ").trim().toLowerCase();
+                    const processed = transcription
+                        .replaceAll(/[^\w\säöüß]/gi, " ")
+                        .replaceAll(/\s+/g, " ")
+                        .trim()
+                        .toLowerCase();
+                    const bullshitPhrases = [
+                        "untertitel der amara",
+                        "untertitel im auftrag des zdf",
+                        "vielen dank fürs zuhören"
+                    ];
+                    if (bullshitPhrases.some(phrase => processed.includes(phrase))) {
+                        console.log("Bullshit phrase detected, ignoring transcription");
+                        return;
+                    }
+                    input.value = processed;
                 }
             } else {
                 console.warn('Audio blob is empty');

@@ -58,7 +58,7 @@ export class GenericTemplates {
         const isNew = word.count === 1;
 
         return create("div")
-            .classes("flex", "word", state)
+            .classes("flex", "word", "align-content", state)
             .children(
                 create("span")
                     .classes("word-text", isNew ? "new" : "_")

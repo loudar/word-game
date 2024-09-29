@@ -21,7 +21,7 @@ export function initializeStt(app) {
 
             let file = req.file;
             const tempDir = os.tmpdir();
-            const filePath = path.join(tempDir, file.filename + ".webm");
+            const filePath = path.join(tempDir, file.filename + ".wav");
 
             fs.writeFileSync(filePath, fs.readFileSync(file.path));
             let text = await OpenAiTranscriptionProvider.transcribe(filePath, language, apiKey);
