@@ -1,3 +1,5 @@
+import {store} from "https://fjs.targoninc.com/f.mjs";
+
 export class WordApi {
     static async getWordsForLetter(letter, language) {
         const words = await WordApi.loadWords(language);
@@ -45,5 +47,10 @@ export class WordApi {
             anyWordFound = true;
         }
         return anyWordFound;
+    }
+
+    static deleteWord(word) {
+        const guessedWords = store().get("guessedWords");
+        guessedWords.value = guessedWords.value.filter(g => g.word !== word);
     }
 }

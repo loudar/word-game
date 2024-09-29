@@ -91,6 +91,19 @@ button:hover {
     font-size: 1em !important;
 }
 
+.progress_activity .material-symbols-outlined {
+    animation: progress-activity 1s infinite linear;
+}
+
+@keyframes progress-activity {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
 .word-list:empty {
     height: 0;
     padding: 0;

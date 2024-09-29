@@ -1,5 +1,6 @@
 import {computedSignal, create, signalMap} from "https://fjs.targoninc.com/f.mjs";
 import {Time} from "../time.mjs";
+import {WordApi} from "../localApi/word.api.mjs";
 
 export class GenericTemplates {
     static fullWidthTextInput(label, value, onchange = () => {}) {
@@ -63,10 +64,20 @@ export class GenericTemplates {
                     .classes("word-text", isNew ? "new" : "_")
                     .text(word.word)
                     .build(),
-                create("span")
-                    .classes("word-count")
-                    .text(lastGuessed)
-                    .build(),
+                create("div")
+                    .classes("flex", "align-content")
+                    .children(
+                        create("span")
+                            .classes("word-count")
+                            .text(lastGuessed)
+                            .build(),
+                        GenericTemplates.iconButton("delete", () => {
+                            const confirmed = confirm("Are you sure you want to delete this word?");
+                            if (confirmed) {
+                                WordApi.deleteWord(word.word);
+                            }
+                        }, ["negative"]),
+                    ).build()
             ).build();
     }
 

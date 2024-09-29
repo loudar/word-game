@@ -58,6 +58,8 @@ export class UniqueTemplates {
         });
         const preventRecording = store().get("preventRecording");
         const recordingIcon = computedSignal(preventRecording, preventRecording => preventRecording ? "mic_off" : "mic");
+        const uploading = signal(false);
+        const uploadIcon = computedSignal(uploading, uploading => uploading ? "progress_activity" : "upload");
 
         return create("div")
             .classes("content", "flex-v")
@@ -77,19 +79,24 @@ export class UniqueTemplates {
                                     link.download = `${Local.listTitle()}_${selectedLanguage.value}_${selectedLetter.value}.json`;
                                     link.click();
                                 }, ["positive"]),
-                                GenericTemplates.iconButton("upload", () => {
+                                GenericTemplates.iconButton(uploadIcon, () => {
                                     const input = document.createElement('input');
                                     input.type = 'file';
+                                    uploading.value = true;
                                     input.onchange = e => {
                                         const file = e.target.files[0];
                                         const reader = new FileReader();
                                         reader.onload = e => {
                                             guessedWords.value = JSON.parse(e.target.result);
+                                            uploading.value = false;
                                         };
                                         reader.readAsText(file);
                                     };
+                                    input.onabort = () => {
+                                        uploading.value = false;
+                                    };
                                     input.click();
-                                }, ["positive"]),
+                                }, ["positive", uploadIcon]),
                             ).build()
                     ).build(),
                 create("div")
@@ -118,6 +125,9 @@ export class UniqueTemplates {
                 GenericTemplates.error(error),
                 GenericTemplates.fullWidthTextInput(null, input, newInput => {
                     input.value = newInput;
+                    setTimeout(() => {
+                        input.value = "";
+                    }, 0);
                 }),
             ).build();
     }
