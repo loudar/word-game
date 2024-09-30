@@ -119,7 +119,7 @@ export class SttApi {
                     console.log("Recording started...");
                     recordingStoppedAt = Infinity;
                 }
-            } else if (currentAverage < 1 && currentAverage < averageOfAll * .15) {
+            } else if (currentAverage < 1 && currentAverage < averageOfAll * .2) {
                 if (recording.value && recordingStoppedAt === Infinity) {
                     recordingStoppedAt = Date.now();
                     setTimeout(() => {
