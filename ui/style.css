@@ -186,7 +186,7 @@ label {
     width: max-content;
     max-width: min(50dvw, 300px);
     background: var(--bg-2);
-    border-radius: var(--br);
+    border-radius: 0 var(--br) var(--br) var(--br);
     padding: var(--input-padding);
     z-index: 2;
     font-size: 0.8em;
@@ -202,6 +202,7 @@ label {
 
 .hover-info:hover {
     background: var(--bg-2);
+    border-radius: var(--br) var(--br) 0 0;
 }
 
 .hover-info:hover .hover-text {
