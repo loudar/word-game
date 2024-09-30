@@ -67,4 +67,22 @@ export class Local {
                 return "Your OpenAI API key will be used for speech recognition and will never be stored by us.";
         }
     }
+
+    static transcribing() {
+        switch (getLang()) {
+            case "de":
+                return "Transkribiere...";
+            case "en":
+                return "Transcribing...";
+        }
+    }
+
+    static loadingWords() {
+        switch (getLang()) {
+            case "de":
+                return "Lade Wörter...";
+            case "en":
+                return "Loading words...";
+        }
+    }
 }

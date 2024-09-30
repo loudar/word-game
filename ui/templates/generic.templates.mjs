@@ -1,6 +1,7 @@
 import {computedSignal, create, ifjs, signal, signalMap, store} from "https://fjs.targoninc.com/f.mjs";
 import {Time} from "../time.mjs";
 import {WordApi} from "../localApi/word.api.mjs";
+import {Local} from "../strings.mjs";
 
 export class GenericTemplates {
     static guessTextInput(label, value, onchange = () => {}) {
@@ -14,7 +15,7 @@ export class GenericTemplates {
             .for(label)
             .text(label)
             .children(
-                ifjs(transcribing, GenericTemplates.loading()),
+                ifjs(transcribing, GenericTemplates.loading(Local.transcribing())),
                 ifjs(transcribing, create("input")
                     .type("text")
                     .name(label)
@@ -208,16 +209,24 @@ export class GenericTemplates {
             .build();
     }
 
-    static loading(circleCount = 4, delay = 0.2) {
+    static loading(text = null, circleCount = 4, delay = 0.2) {
         return create("div")
-            .classes("spinner")
+            .classes("flex", "align-content", "spinner-container")
             .children(
-                ...Array.from({length: circleCount}, (_, i) => {
-                    return create("div")
-                        .classes("spinner-circle")
-                        .styles("animation-delay", `-${i * delay}s`)
-                        .build();
-                })
+                ifjs(text, create("span")
+                    .classes("spinner-text")
+                    .text(text)
+                    .build()),
+                create("div")
+                    .classes("spinner")
+                    .children(
+                        ...Array.from({length: circleCount}, (_, i) => {
+                            return create("div")
+                                .classes("spinner-circle")
+                                .styles("animation-delay", `-${i * delay}s`)
+                                .build();
+                        })
+                    ).build()
             ).build();
     }
 }

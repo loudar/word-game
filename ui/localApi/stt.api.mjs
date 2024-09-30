@@ -84,8 +84,8 @@ export class SttApi {
         const nSeconds = 1;
         const sampleRate = analyser.context.sampleRate;
         const n = nSeconds * sampleRate;
-        const interval = 50;
-        const historySize = Math.floor(nSeconds * 1000) / interval;
+        const interval = 25;
+        const historySize = Math.floor(nSeconds * .5 * 1000) / interval;
         const lastDataArrays = Array.from({length: historySize}, () => new Uint8Array(n));
         let recordingStoppedAt = Infinity;
         console.log(`Sample rate: ${sampleRate}, n: ${n}`);
@@ -111,7 +111,7 @@ export class SttApi {
                 mediaRecorder.requestData();
             }
 
-            const startTreshhold = averageOfAll * .02;
+            const startTreshhold = averageOfAll * .1;
             if (currentAverage > startTreshhold && currentAverage > 1) {
                 if (this.apiKey && !recording.value && !this.preventRecording) {
                     recording.value = true;
@@ -119,7 +119,7 @@ export class SttApi {
                     console.log("Recording started...");
                     recordingStoppedAt = Infinity;
                 }
-            } else if (currentAverage < 1 && currentAverage < averageOfAll * .05) {
+            } else if (currentAverage < 1 && currentAverage < averageOfAll * .15) {
                 if (recording.value && recordingStoppedAt === Infinity) {
                     recordingStoppedAt = Date.now();
                     setTimeout(() => {

@@ -91,13 +91,16 @@ button:hover {
     font-size: 1em !important;
 }
 
+.spinner-container {
+    margin: auto;
+}
+
 .spinner {
     --spinner-size: 1em;
     --translation-size: calc(var(--spinner-size) / 2 - var(--spinner-size) / 10);
     height: var(--spinner-size);
     width: var(--spinner-size);
     position: relative;
-    margin: auto;
     display: flex;
     justify-content: center;
     align-items: center;

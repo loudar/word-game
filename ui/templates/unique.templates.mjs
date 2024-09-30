@@ -107,7 +107,7 @@ export class UniqueTemplates {
                         }),
                         ifjs(loadingWords, UniqueTemplates.stateButtons(guessedWords, selectedLanguage, selectedLetter, uploadIcon, uploading), true),
                     ).build(),
-                ifjs(loadingWords, GenericTemplates.loading()),
+                ifjs(loadingWords, GenericTemplates.loading(Local.loadingWords())),
                 ifjs(loadingWords, UniqueTemplates.guessArea(input, guessedWords, notYetGuessedCount, error), true),
             ).build();
     }
