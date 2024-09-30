@@ -74,6 +74,13 @@ export class UniqueTemplates {
                         create("div")
                             .classes("flex", "align-content")
                             .children(
+                                GenericTemplates.iconButton("content_copy", async () => {
+                                    await navigator.clipboard.writeText(JSON.stringify(guessedWords.value, null, 4));
+                                }, ["positive"]),
+                                GenericTemplates.iconButton("content_paste", async () => {
+                                    const text = await navigator.clipboard.readText();
+                                    guessedWords.value = JSON.parse(text);
+                                }, ["positive"]),
                                 GenericTemplates.iconButton("download", () => {
                                     const link = document.createElement('a');
                                     link.href = URL.createObjectURL(new Blob([JSON.stringify(guessedWords.value, null, 4)], {type: 'application/json'}));
