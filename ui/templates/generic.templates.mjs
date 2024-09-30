@@ -39,6 +39,19 @@ export class GenericTemplates {
             ).build();
     }
 
+    static hoverInfo(icon, text) {
+        return create("div")
+            .classes("hover-info", "flex", "align-content")
+            .title(text)
+            .children(
+                GenericTemplates.icon(icon),
+                create("span")
+                    .classes("hover-text")
+                    .text(text)
+                    .build(),
+            ).build();
+    }
+
     static iconButton(icon, onclick = () => {}, classes = [], title = "") {
         return create("button")
             .classes("icon-button", ...classes)

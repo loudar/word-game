@@ -177,3 +177,33 @@ label {
     z-index: 1;
     pointer-events: none;
 }
+
+.hover-text {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: max-content;
+    max-width: min(50dvw, 300px);
+    background: var(--bg-2);
+    border-radius: var(--br);
+    padding: var(--input-padding);
+    z-index: 2;
+    font-size: 0.8em;
+}
+
+.hover-info {
+    position: relative;
+    padding: var(--input-padding);
+    background: var(--bg-1);
+    border-radius: var(--br);
+    cursor: help;
+}
+
+.hover-info:hover {
+    background: var(--bg-2);
+}
+
+.hover-info:hover .hover-text {
+    display: block;
+}

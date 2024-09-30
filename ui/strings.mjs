@@ -58,4 +58,13 @@ export class Local {
                 return "Language";
         }
     }
+
+    static apiKeyHelp() {
+        switch (getLang()) {
+            case "de":
+                return "Dein OpenAI-Schlüssel wird für Transkription verwendet und wird niemals von uns gespeichert.";
+            case "en":
+                return "Your OpenAI API key will be used for speech recognition and will never be stored by us.";
+        }
+    }
 }

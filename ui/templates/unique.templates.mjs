@@ -75,12 +75,17 @@ export class UniqueTemplates {
                         GenericTemplates.select(Local.language(), languages, selectedLanguage, newLanguage => {
                             selectedLanguage.value = newLanguage;
                         }),
-                        GenericTemplates.input("password", Local.apiKey(), sttApiKey, newInput => {
-                            sttApiKey.value = newInput;
-                        }),
-                        GenericTemplates.micButton(recordingIcon, () => {
-                            preventRecording.value = !preventRecording.value;
-                        }, ["positive"], "Toggle microphone", micAmp),
+                        create("div")
+                            .classes("flex", "align-content")
+                            .children(
+                                GenericTemplates.hoverInfo("help_outline", Local.apiKeyHelp()),
+                                GenericTemplates.input("password", Local.apiKey(), sttApiKey, newInput => {
+                                    sttApiKey.value = newInput;
+                                }),
+                                GenericTemplates.micButton(recordingIcon, () => {
+                                    preventRecording.value = !preventRecording.value;
+                                }, ["positive"], "Toggle microphone", micAmp),
+                            ).build(),
                     ).build(),
                 create("div")
                     .classes("flex", "wrap", "space-between")
