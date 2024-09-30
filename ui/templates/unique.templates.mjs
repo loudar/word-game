@@ -81,6 +81,9 @@ export class UniqueTemplates {
                         create("div")
                             .classes("flex", "align-content", "wrap")
                             .children(
+                                GenericTemplates.iconButton("code", async () => {
+                                    window.open("https://github.com/loudar/word-game");
+                                }, [], "Code on Github"),
                                 GenericTemplates.hoverInfo("help_outline", Local.apiKeyHelp()),
                                 ifjs(enteringKey, GenericTemplates.iconButton(keyIcon, async () => {
                                     enteringKey.value = true;
