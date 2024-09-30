@@ -13,7 +13,7 @@ export class WordApi {
     static async loadFile(fileName) {
         const response = await fetch(fileName);
         const text = await response.text();
-        return text.split("\n");
+        return text.replaceAll("\r", "").split("\n");
     }
 
     static processGuessedWords(input, guessedWords, knownWords) {

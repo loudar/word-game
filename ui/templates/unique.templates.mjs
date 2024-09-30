@@ -45,12 +45,12 @@ export class UniqueTemplates {
         loadKnownWords().then();
         const notYetGuessedWords = signal([]);
         const getNotYetGuessedWords = () => {
-            notYetGuessedWords.value = knownWords.value.filter(known => !guessedWords.value.some(guessed => guessed.word === known.word));
+            notYetGuessedWords.value = knownWords.value.filter(known => !guessedWords.value.some(guessed => guessed.word.toLowerCase() === known.toLowerCase()));
         };
         guessedWords.subscribe(getNotYetGuessedWords);
         knownWords.subscribe(getNotYetGuessedWords);
         getNotYetGuessedWords();
-        const notYetGuessedCount = computedSignal(notYetGuessedWords, notYetGuessedWords => Local.stats(guessedWords.value.length, notYetGuessedWords.length));
+        const notYetGuessedCount = computedSignal(notYetGuessedWords, notYetGuessed => Local.stats(guessedWords.value.length, notYetGuessed.length));
         const error = signal(null);
         const sttApiKey = store().get("sttApiKey");
         sttApiKey.subscribe(apiKey => {
