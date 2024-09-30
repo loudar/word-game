@@ -136,7 +136,12 @@ export class UniqueTemplates {
                 }, ["positive"]),
                 GenericTemplates.iconButton("content_paste", async () => {
                     const text = await navigator.clipboard.readText();
-                    guessedWords.value = JSON.parse(text);
+                    let words = JSON.parse(text);
+                    words = words.filter(word => word.word.startsWith(selectedLetter.value));
+                    guessedWords.value = [
+                        ...guessedWords.value,
+                        ...words.filter(word => !guessedWords.value.some(g => g.word === word.word)),
+                    ];
                 }, ["positive"]),
                 GenericTemplates.iconButton("download", () => {
                     const link = document.createElement('a');
@@ -152,7 +157,12 @@ export class UniqueTemplates {
                         const file = e.target.files[0];
                         const reader = new FileReader();
                         reader.onload = e => {
-                            guessedWords.value = JSON.parse(e.target.result);
+                            let words = JSON.parse(e.target.result);
+                            words = words.filter(word => word.word.startsWith(selectedLetter.value));
+                            guessedWords.value = [
+                                ...guessedWords.value,
+                                ...words.filter(word => !guessedWords.value.some(g => g.word === word.word)),
+                            ];
                             uploading.value = false;
                         };
                         reader.readAsText(file);
