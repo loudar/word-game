@@ -6,14 +6,21 @@ export class SttApi {
         this.apiKey = null;
         this.preventRecording = true;
         this.language = "de";
+        this.interval = null;
     }
 
     setApiKey(apiKey) {
-        if (apiKey && apiKey.length > 0) {
-           console.log(`Setting API key to ${apiKey.substring(0, 3)}...`);
+        if (apiKey && !apiKey.startsWith("sk-")) {
+            console.warn("Invalid API-Key");
+            return;
         }
         this.apiKey = apiKey;
-        localStorage.setItem("sttApiKey", apiKey);
+        if (apiKey) {
+            localStorage.setItem("sttApiKey", apiKey);
+            this.recordContinuously().then();
+        } else {
+            localStorage.removeItem("sttApiKey");
+        }
     }
 
     toggleRecording() {
@@ -24,6 +31,7 @@ export class SttApi {
         try {
             const formData = new FormData();
             formData.append('file', voiceData, 'file');
+            store().setSignalValue("transcribing", true);
             const response = await fetch(this.apiEndpoint, {
                 method: 'POST',
                 headers: {
@@ -32,6 +40,7 @@ export class SttApi {
                 },
                 body: formData
             });
+            store().setSignalValue("transcribing", false);
             if (!response.ok) {
                 throw new Error(`HTTP error, status: ${response.status}`);
             }
@@ -43,6 +52,9 @@ export class SttApi {
     }
 
     async recordContinuously() {
+        if (this.interval) {
+            return;
+        }
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         const audioContext = new AudioContext();
         const source = audioContext.createMediaStreamSource(stream);
@@ -69,46 +81,61 @@ export class SttApi {
 
         source.connect(analyser);
 
-        const nSeconds = 2;
+        const nSeconds = 1;
         const sampleRate = analyser.context.sampleRate;
         const n = nSeconds * sampleRate;
+        const interval = 50;
+        const historySize = Math.floor(nSeconds * 1000) / interval;
+        const lastDataArrays = Array.from({length: historySize}, () => new Uint8Array(n));
+        let recordingStoppedAt = Infinity;
         console.log(`Sample rate: ${sampleRate}, n: ${n}`);
+
         const checkAudioLevels = () => {
             analyser.getByteTimeDomainData(dataArray);
-            let maxAmplitude = 0, averageOfAll = 0;
+            lastDataArrays.shift();
+            lastDataArrays.push(dataArray.slice());
+            let maxAmplitude = 0, averageOfAll;
+            let currentAverage = 0;
             for (let i = 0; i < bufferLength; i++) {
                 const amplitude = Math.abs(dataArray[i] - 128); // Normalize waveform value
-                averageOfAll += amplitude;
+                currentAverage += amplitude;
                 if (amplitude > maxAmplitude) {
                     maxAmplitude = amplitude;
                 }
             }
-            averageOfAll /= bufferLength;
-            const averageOfLastN = dataArray.slice(dataArray.length - n).reduce((sum, value) => sum + (Math.abs(value - 128)), 0) / n;
-            const lastAmplitude = Math.abs(dataArray[dataArray.length - 1] - 128);
-            store().setSignalValue("micAmp", lastAmplitude / 128);
+            averageOfAll = lastDataArrays.reduce((sum, array) => sum + array.reduce((sum, value) => sum + (Math.abs(value - 128)), 0), 0) / historySize / bufferLength;
+            currentAverage /= bufferLength;
+            store().setSignalValue("micAmp", currentAverage / 128);
 
-            const hadDataThreshold = 5;
+            if (recording.value) {
+                mediaRecorder.requestData();
+            }
+
             const startTreshhold = averageOfAll * .02;
-            const endTreshhold = averageOfAll * .015;
-
-            if (lastAmplitude > startTreshhold) {
-                if (this.apiKey && !recording.value && maxAmplitude > hadDataThreshold && !this.preventRecording) {
+            if (currentAverage > startTreshhold && currentAverage > 1) {
+                if (this.apiKey && !recording.value && !this.preventRecording) {
                     recording.value = true;
                     mediaRecorder.start();
                     console.log("Recording started...");
+                    recordingStoppedAt = Infinity;
                 }
-            } else if (averageOfLastN < endTreshhold) {
-                if (recording.value) {
-                    mediaRecorder.stop();
-                    console.log("Recording stopped...");
-                    recording.value = false;
+            } else if (currentAverage < 1 && currentAverage < averageOfAll * .05) {
+                if (recording.value && recordingStoppedAt === Infinity) {
+                    recordingStoppedAt = Date.now();
+                    setTimeout(() => {
+                        if (recording.value && Date.now() - recordingStoppedAt >= (nSeconds * 1000) - 10) {
+                            mediaRecorder.stop();
+                            console.log("Recording stopped...");
+                            recording.value = false;
+                        } else {
+                            console.log(Date.now() - recordingStoppedAt);
+                        }
+                    }, nSeconds * 1000);
                 }
             }
         };
 
         mediaRecorder.ondataavailable = event => {
-            console.log('Data available:', event.data);
             audioBuffers.push(event.data);
         };
 
@@ -143,7 +170,7 @@ export class SttApi {
         };
 
         // Check audio levels at a regular interval
-        setInterval(checkAudioLevels, 100); // Check audio level every 100ms
+        this.interval = setInterval(checkAudioLevels, interval); // Check audio level every 100ms
     }
 
     setPreventRecording(preventRecording) {

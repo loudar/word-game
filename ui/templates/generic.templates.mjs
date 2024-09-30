@@ -1,19 +1,21 @@
-import {computedSignal, create, signal, signalMap, store} from "https://fjs.targoninc.com/f.mjs";
+import {computedSignal, create, ifjs, signal, signalMap, store} from "https://fjs.targoninc.com/f.mjs";
 import {Time} from "../time.mjs";
 import {WordApi} from "../localApi/word.api.mjs";
 
 export class GenericTemplates {
-    static fullWidthTextInput(label, value, onchange = () => {}) {
+    static guessTextInput(label, value, onchange = () => {}) {
         const id = Math.random().toString(36).substring(7);
         const loading = store().get("wordProcessing");
+        const transcribing = store().get("transcribing");
         const icon = computedSignal(loading, loading => loading ? "progress_activity" : "send");
 
         return create("label")
-            .classes("flex", "full-width")
+            .classes("flex", "full-width", "space-between")
             .for(label)
             .text(label)
             .children(
-                create("input")
+                ifjs(transcribing, GenericTemplates.loading()),
+                ifjs(transcribing, create("input")
                     .type("text")
                     .name(label)
                     .id(id)
@@ -31,11 +33,11 @@ export class GenericTemplates {
                             }, 0);
                         }
                     })
-                    .build(),
+                    .build(), true),
                 GenericTemplates.iconButton(icon, () => {
                     onchange(document.getElementById(id)?.value);
                     document.getElementById(id)?.focus();
-                }, ["positive", icon]),
+                }, [icon]),
             ).build();
     }
 
@@ -167,6 +169,9 @@ export class GenericTemplates {
                     .onchange(e => {
                         onchange(e.target.value);
                     })
+                    .onblur(e => {
+                        onchange(e.target.value);
+                    })
                     .build()
             ).build();
     }
@@ -203,14 +208,16 @@ export class GenericTemplates {
             .build();
     }
 
-    static loading() {
+    static loading(circleCount = 4, delay = 0.2) {
         return create("div")
-            .classes("flex", "center", "progress_activity")
+            .classes("spinner")
             .children(
-                create("span")
-                    .classes("material-symbols-outlined")
-                    .text("progress_activity")
-                    .build(),
+                ...Array.from({length: circleCount}, (_, i) => {
+                    return create("div")
+                        .classes("spinner-circle")
+                        .styles("animation-delay", `-${i * delay}s`)
+                        .build();
+                })
             ).build();
     }
 }

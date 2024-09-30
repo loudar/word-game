@@ -65,6 +65,9 @@ export class UniqueTemplates {
         const uploadIcon = computedSignal(uploading, uploading => uploading ? "progress_activity" : "upload");
         const micAmp = store().get("micAmp");
         const loadingWords = store().get("loadingWords");
+        const keyIcon = computedSignal(sttApiKey, sttApiKey => (sttApiKey && sttApiKey.startsWith("sk-")) ? "vpn_key" : "vpn_key_off");
+        const keyClass = computedSignal(sttApiKey, sttApiKey => (sttApiKey && sttApiKey.startsWith("sk-")) ? "positive" : "negative");
+        const enteringKey = signal(false);
 
         return create("div")
             .classes("content", "flex-v")
@@ -76,15 +79,19 @@ export class UniqueTemplates {
                             selectedLanguage.value = newLanguage;
                         }),
                         create("div")
-                            .classes("flex", "align-content")
+                            .classes("flex", "align-content", "wrap")
                             .children(
                                 GenericTemplates.hoverInfo("help_outline", Local.apiKeyHelp()),
-                                GenericTemplates.input("password", Local.apiKey(), sttApiKey, newInput => {
+                                ifjs(enteringKey, GenericTemplates.iconButton(keyIcon, async () => {
+                                    enteringKey.value = true;
+                                }, [keyClass]), true),
+                                ifjs(enteringKey, GenericTemplates.input("password", Local.apiKey(), sttApiKey, newInput => {
+                                    enteringKey.value = false;
                                     sttApiKey.value = newInput;
-                                }),
+                                })),
                                 GenericTemplates.micButton(recordingIcon, () => {
                                     preventRecording.value = !preventRecording.value;
-                                }, ["positive"], "Toggle microphone", micAmp),
+                                }, [], "Toggle microphone", micAmp),
                             ).build(),
                     ).build(),
                 create("div")
@@ -115,7 +122,7 @@ export class UniqueTemplates {
                 GenericTemplates.text(notYetGuessedCount, ["text-small"]),
                 GenericTemplates.wordList(guessedWords, "guessed"),
                 GenericTemplates.error(error),
-                GenericTemplates.fullWidthTextInput(null, input, newInput => {
+                GenericTemplates.guessTextInput(null, input, newInput => {
                     input.value = newInput.replaceAll(/[^\w\säöüß]/gi, " ")
                         .replaceAll(/\s+/g, " ")
                         .trim()
@@ -133,7 +140,7 @@ export class UniqueTemplates {
             .children(
                 GenericTemplates.iconButton("content_copy", async () => {
                     await navigator.clipboard.writeText(JSON.stringify(guessedWords.value, null, 4));
-                }, ["positive"]),
+                }, []),
                 GenericTemplates.iconButton("content_paste", async () => {
                     const text = await navigator.clipboard.readText();
                     let words = JSON.parse(text);
@@ -142,13 +149,13 @@ export class UniqueTemplates {
                         ...guessedWords.value,
                         ...words.filter(word => !guessedWords.value.some(g => g.word === word.word)),
                     ];
-                }, ["positive"]),
+                }, []),
                 GenericTemplates.iconButton("download", () => {
                     const link = document.createElement('a');
                     link.href = URL.createObjectURL(new Blob([JSON.stringify(guessedWords.value, null, 4)], {type: 'application/json'}));
                     link.download = `${Local.listTitle()}_${selectedLanguage.value}_${selectedLetter.value}.json`;
                     link.click();
-                }, ["positive"]),
+                }, []),
                 GenericTemplates.iconButton(uploadIcon, () => {
                     const input = document.createElement('input');
                     input.type = 'file';
@@ -171,7 +178,7 @@ export class UniqueTemplates {
                         uploading.value = false;
                     };
                     input.click();
-                }, ["positive", uploadIcon]),
+                }, [uploadIcon]),
             ).build();
     }
 }
