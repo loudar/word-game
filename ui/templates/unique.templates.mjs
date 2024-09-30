@@ -71,41 +71,12 @@ export class UniqueTemplates {
                         GenericTemplates.select(Local.language(), languages, selectedLanguage, newLanguage => {
                             selectedLanguage.value = newLanguage;
                         }),
-                        create("div")
-                            .classes("flex", "align-content")
-                            .children(
-                                GenericTemplates.iconButton("content_copy", async () => {
-                                    await navigator.clipboard.writeText(JSON.stringify(guessedWords.value, null, 4));
-                                }, ["positive"]),
-                                GenericTemplates.iconButton("content_paste", async () => {
-                                    const text = await navigator.clipboard.readText();
-                                    guessedWords.value = JSON.parse(text);
-                                }, ["positive"]),
-                                GenericTemplates.iconButton("download", () => {
-                                    const link = document.createElement('a');
-                                    link.href = URL.createObjectURL(new Blob([JSON.stringify(guessedWords.value, null, 4)], {type: 'application/json'}));
-                                    link.download = `${Local.listTitle()}_${selectedLanguage.value}_${selectedLetter.value}.json`;
-                                    link.click();
-                                }, ["positive"]),
-                                GenericTemplates.iconButton(uploadIcon, () => {
-                                    const input = document.createElement('input');
-                                    input.type = 'file';
-                                    uploading.value = true;
-                                    input.onchange = e => {
-                                        const file = e.target.files[0];
-                                        const reader = new FileReader();
-                                        reader.onload = e => {
-                                            guessedWords.value = JSON.parse(e.target.result);
-                                            uploading.value = false;
-                                        };
-                                        reader.readAsText(file);
-                                    };
-                                    input.onabort = () => {
-                                        uploading.value = false;
-                                    };
-                                    input.click();
-                                }, ["positive", uploadIcon]),
-                            ).build()
+                        GenericTemplates.input("password", Local.apiKey(), sttApiKey, newInput => {
+                            sttApiKey.value = newInput;
+                        }),
+                        GenericTemplates.micButton(recordingIcon, () => {
+                            preventRecording.value = !preventRecording.value;
+                        }, ["positive"], "Toggle microphone", micAmp),
                     ).build(),
                 create("div")
                     .classes("flex", "wrap", "space-between")
@@ -118,12 +89,7 @@ export class UniqueTemplates {
                         }), selectedLetter, newLetter => {
                             selectedLetter.value = newLetter.toLowerCase();
                         }),
-                        GenericTemplates.input("password", Local.apiKey(), sttApiKey, newInput => {
-                            sttApiKey.value = newInput;
-                        }),
-                        GenericTemplates.micButton(recordingIcon, () => {
-                            preventRecording.value = !preventRecording.value;
-                        }, ["positive"], "Toggle microphone", micAmp),
+                        UniqueTemplates.stateButtons(guessedWords, selectedLanguage, selectedLetter, uploadIcon, uploading),
                     ).build(),
                 create("h2")
                     .text(Local.listTitle())
@@ -140,6 +106,44 @@ export class UniqueTemplates {
                         input.value = "";
                     }, 0);
                 }),
+            ).build();
+    }
+
+    static stateButtons(guessedWords, selectedLanguage, selectedLetter, uploadIcon, uploading) {
+        return create("div")
+            .classes("flex", "align-content")
+            .children(
+                GenericTemplates.iconButton("content_copy", async () => {
+                    await navigator.clipboard.writeText(JSON.stringify(guessedWords.value, null, 4));
+                }, ["positive"]),
+                GenericTemplates.iconButton("content_paste", async () => {
+                    const text = await navigator.clipboard.readText();
+                    guessedWords.value = JSON.parse(text);
+                }, ["positive"]),
+                GenericTemplates.iconButton("download", () => {
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(new Blob([JSON.stringify(guessedWords.value, null, 4)], {type: 'application/json'}));
+                    link.download = `${Local.listTitle()}_${selectedLanguage.value}_${selectedLetter.value}.json`;
+                    link.click();
+                }, ["positive"]),
+                GenericTemplates.iconButton(uploadIcon, () => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    uploading.value = true;
+                    input.onchange = e => {
+                        const file = e.target.files[0];
+                        const reader = new FileReader();
+                        reader.onload = e => {
+                            guessedWords.value = JSON.parse(e.target.result);
+                            uploading.value = false;
+                        };
+                        reader.readAsText(file);
+                    };
+                    input.onabort = () => {
+                        uploading.value = false;
+                    };
+                    input.click();
+                }, ["positive", uploadIcon]),
             ).build();
     }
 }
