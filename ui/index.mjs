@@ -13,6 +13,8 @@ store().set("knownWords", signal([]));
 store().set("sttApiKey", signal(null));
 store().set("micAmp", signal(0));
 store().set("recording", signal(false));
+store().set("loadingWords", signal(false));
+store().set("wordProcessing", signal(false));
 store().set("preventRecording", signal(true));
 store().get("preventRecording").subscribe(preventRecording => {
     sttApi.setPreventRecording(preventRecording);

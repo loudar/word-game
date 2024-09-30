@@ -5,6 +5,8 @@ import {WordApi} from "../localApi/word.api.mjs";
 export class GenericTemplates {
     static fullWidthTextInput(label, value, onchange = () => {}) {
         const id = Math.random().toString(36).substring(7);
+        const loading = store().get("wordProcessing");
+        const icon = computedSignal(loading, loading => loading ? "progress_activity" : "send");
 
         return create("label")
             .classes("flex", "full-width")
@@ -17,6 +19,7 @@ export class GenericTemplates {
                     .id(id)
                     .value(value)
                     .styles("flex-grow", "1")
+                    .disabled(loading)
                     .onchange(e => {
                         onchange(e.target.value);
                     })
@@ -29,9 +32,10 @@ export class GenericTemplates {
                         }
                     })
                     .build(),
-                GenericTemplates.iconButton("send", () => {
+                GenericTemplates.iconButton(icon, () => {
                     onchange(document.getElementById(id)?.value);
-                }, ["positive"]),
+                    document.getElementById(id)?.focus();
+                }, ["positive", icon]),
             ).build();
     }
 
@@ -184,5 +188,16 @@ export class GenericTemplates {
             .classes("level")
             .styles("bottom", bottom)
             .build();
+    }
+
+    static loading() {
+        return create("div")
+            .classes("flex", "center", "progress_activity")
+            .children(
+                create("span")
+                    .classes("material-symbols-outlined")
+                    .text("progress_activity")
+                    .build(),
+            ).build();
     }
 }

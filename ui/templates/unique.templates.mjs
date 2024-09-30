@@ -1,5 +1,5 @@
 import {GenericTemplates} from "./generic.templates.mjs";
-import {computedSignal, create, signal, store} from "https://fjs.targoninc.com/f.mjs";
+import {computedSignal, create, ifjs, signal, store} from "https://fjs.targoninc.com/f.mjs";
 import {WordApi} from "../localApi/word.api.mjs";
 import {Local} from "../strings.mjs";
 
@@ -11,12 +11,15 @@ export const languages = [
 export class UniqueTemplates {
     static page() {
         const input = store().get("input");
+        const wordProcessing = store().get("wordProcessing");
         input.subscribe(newInput => {
             if (!newInput || newInput.trim().length === 0) {
                 return;
             }
 
+            wordProcessing.value = true;
             const found = WordApi.processGuessedWords(newInput, guessedWords, knownWords);
+            wordProcessing.value = false;
             if (!found) {
                 error.value = Local.noValidWordInText(newInput);
             } else {
@@ -61,6 +64,7 @@ export class UniqueTemplates {
         const uploading = signal(false);
         const uploadIcon = computedSignal(uploading, uploading => uploading ? "progress_activity" : "upload");
         const micAmp = store().get("micAmp");
+        const loadingWords = store().get("loadingWords");
 
         return create("div")
             .classes("content", "flex-v")
@@ -89,8 +93,17 @@ export class UniqueTemplates {
                         }), selectedLetter, newLetter => {
                             selectedLetter.value = newLetter.toLowerCase();
                         }),
-                        UniqueTemplates.stateButtons(guessedWords, selectedLanguage, selectedLetter, uploadIcon, uploading),
+                        ifjs(loadingWords, UniqueTemplates.stateButtons(guessedWords, selectedLanguage, selectedLetter, uploadIcon, uploading), true),
                     ).build(),
+                ifjs(loadingWords, GenericTemplates.loading()),
+                ifjs(loadingWords, UniqueTemplates.guessArea(input, guessedWords, notYetGuessedCount, error), true),
+            ).build();
+    }
+
+    static guessArea(input, guessedWords, notYetGuessedCount, error) {
+        return create("div")
+            .classes("flex-v")
+            .children(
                 create("h2")
                     .text(Local.listTitle())
                     .build(),

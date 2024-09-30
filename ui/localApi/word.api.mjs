@@ -7,7 +7,10 @@ export class WordApi {
     }
 
     static async loadWords(language) {
-        return await WordApi.loadFile(`wordlists/${language}.txt`);
+        store().setSignalValue("loadingWords", true);
+        const words = await WordApi.loadFile(`wordlists/${language}.txt`);
+        store().setSignalValue("loadingWords", false);
+        return words;
     }
 
     static async loadFile(fileName) {
@@ -24,25 +27,23 @@ export class WordApi {
                 console.log(`Unknown word ${word}`);
                 continue;
             }
-            const existing = guessedWords.value.find(g => g.word === word);
+            const existing = guessedWords.value.some(g => g.word === word);
             if (existing) {
-                guessedWords.value = [
-                    ...guessedWords.value.filter(g => g.word !== word),
-                    {
-                        word,
-                        count: existing.count + 1,
-                        lastGuessed: Date.now()
-                    }
-                ];
+                const words = guessedWords.value.filter(g => g.word !== word);
+                words.push({
+                    word,
+                    count: existing.count + 1,
+                    lastGuessed: Date.now()
+                });
+                guessedWords.value = words;
             } else {
-                guessedWords.value = [
-                    ...guessedWords.value,
-                    {
-                        word,
-                        count: 1,
-                        lastGuessed: Date.now()
-                    }
-                ];
+                const words = guessedWords.value;
+                words.push({
+                    word,
+                    count: 1,
+                    lastGuessed: Date.now()
+                });
+                guessedWords.value = words;
             }
             anyWordFound = true;
         }
